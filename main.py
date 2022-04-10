@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 if len(sys.argv) >= 2:
     basepath = sys.argv[1]
@@ -35,9 +36,59 @@ branches = os.listdir(path)
 
 print(f'Gathering data from the following branches: {branches}')
 
+def isTimestamp(str):
+    if str.isnumeric():
+        if int(str) > 99999:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+class Commit:
+    def __init__(self, line):
+        self.line = line
+        linesplit = line.split(' ')
+        self.parentcode = linesplit[0]
+        self.code = linesplit[1]
+        self.timestamp = int(next(filter(isTimestamp, linesplit)))
+
+    def timeSinceCommit(self):
+        t = int(time.time())
+        return (t - self.timestamp)
+
+    def commitedWithinLast(self, t):
+        return self.timeSinceCommit() < t
+
+withinLast = input('How many hours back do you want to get data for? (Default is last 12 hours): ')
+
+if withinLast == '' or withinLast == None:
+    withinLast = 60 * 60 * 12
+else:
+    withinLast = 60 * 60 * int(withinLast)
+
+commitsToInclude = []
+
 for branch in branches:
+    # print(f'Data for branch \'{branch}\':')
+    # print()
     f = open(path + '/' + branch, "r")
     lines = f.read().splitlines()
     for line in lines:
-        print(line.split(' '))
-    print('========================================')
+        c = Commit(line)
+        # print(f'Commit Code: {c.code}')
+        # print(f'Time since commit: {c.timeSinceCommit()}')
+        # print(f'Commited within last {withinLast}: {c.commitedWithinLast(withinLast)}')
+        # print()
+        if c.commitedWithinLast(withinLast):
+            commitsToInclude.append(c)
+        commitsToInclude = list(dict.fromkeys(commitsToInclude))
+
+commitCodesToInclude = []
+for commit in commitsToInclude:
+    commitCodesToInclude.append(commit.code[0:8])
+
+print('Result:')
+print(', '.join(commitCodesToInclude))
+
+
