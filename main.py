@@ -88,7 +88,7 @@ commitCodesToInclude = []
 for commit in commitsToInclude:
     commitCodesToInclude.append(commit.code[0:8])
 
-print('Result:')
+print(f'Result ({len(commitCodesToInclude)}):')
 print(', '.join(commitCodesToInclude))
 
 
