@@ -10,10 +10,16 @@ else:
     directories = os.listdir()
 
 directories.sort()
+if basepath is not None:
+    path = basepath + '/.git/logs/refs'
+else:
+    path = '.git/logs/refs'
 
-path = basepath + '/.git/logs/refs'
-
-refs = os.listdir(path)
+try:
+    refs = os.listdir(path)
+except FileNotFoundError:
+    print("Git repository not found here. To search in a different path, add the path as the first argument in running this program.")
+    sys.exit()
 
 if refs.__contains__('heads') & refs.__contains__('remotes'):
     reftype = input('Would you like data for heads or remotes? (H/r) ')
